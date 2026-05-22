@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register - Mila Chat{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-split">
+        <!-- Brand Section -->
+        <div class="auth-brand">
+            <div class="brand-content">
+                <div class="brand-logo">
+                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                        <circle cx="40" cy="40" r="38" fill="url(#gradient)" stroke="var(--teal-500)" stroke-width="2"/>
+                        <text x="40" y="52" font-size="48" font-weight="700" text-anchor="middle" fill="var(--text-on-teal)" font-family="Poppins">M</text>
+                        <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:var(--teal-500);stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:var(--teal-600);stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h1 class="brand-title">Mila</h1>
+                <p class="brand-tagline">Connect friends easily & quickly</p>
+                <div class="brand-feature">
+                    <p>Real-time messaging at lightning speed</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Section -->
+        <div class="auth-form-container">
+            <div class="auth-form-box">
+                <h2>Create Your Account</h2>
+                <p class="auth-subtitle">Join millions connecting on Mila</p>
+
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" style="background: var(--color-error); color: white; padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-md);">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if form.non_field_errors %}
+                <div style="background: #ff4444; color: white; padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-md);">
+                    {% for error in form.non_field_errors %}
+                    <p style="margin: 0;">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <form method="POST" class="auth-form" id="registerForm">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="id_full_name">Full Name</label>
+                        {{ form.full_name }}
+                        {% if form.full_name.errors %}
+                        <div class="form-error">{{ form.full_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_email">Email Address</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <div class="form-error">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_password">Password</label>
+                        {{ form.password }}
+                        <div class="password-strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                        <p class="password-hint" id="passwordHint">Min 8 chars, uppercase, number</p>
+                        {% if form.password.errors %}
+                        <div class="form-error">{{ form.password.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_confirm_password">Confirm Password</label>
+                        {{ form.confirm_password }}
+                        {% if form.confirm_password.errors %}
+                        <div class="form-error">{{ form.confirm_password.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                    <div class="form-error">{{ form.non_field_errors.0 }}</div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary btn-pill btn-large" id="registerBtn" disabled>
+                        Create Account
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="{% url 'accounts:login' %}">Log in</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/auth.js' %}"></script>
+<script>
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        ['change', 'input', 'keyup'].forEach(event => {
+            registerForm.addEventListener(event, validateRegisterForm);
+        });
+    }
+
+    const passwordInput = document.getElementById('id_password');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', updatePasswordStrength);
+    }
+
+    // Initial validation check
+    setTimeout(validateRegisterForm, 100);
+</script>
+{% endblock %}

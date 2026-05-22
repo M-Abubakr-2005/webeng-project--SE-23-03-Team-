@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mila - Real-time chat application. Connect friends easily and quickly.">
+    <meta name="theme-color" content="#2D8C7A">
+    <meta property="og:title" content="Mila - Real-Time Chat">
+    <meta property="og:description" content="Connect friends easily and quickly with Mila">
+    <meta property="og:type" content="website">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
+    <title>{% block title %}Mila Chat{% endblock %}</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/variables.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/animations.css' %}">
+    {% block extra_css %}{% endblock %}
+
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    {% block content %}{% endblock %}
+
+    <script src="{% static 'js/notifications.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

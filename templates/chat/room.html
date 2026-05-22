@@ -1,0 +1,412 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ room.name|default:"Chat" }} - Mila{% endblock %}
+
+{% block extra_css %}
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+
+  .chat-wrapper { display: flex; width: 100%; height: 100%; }
+
+  .chat-sidebar { width: 280px; background: linear-gradient(180deg, rgba(13,17,30,0.9) 0%, rgba(10,12,20,0.95) 100%); border-right: 1px solid rgba(29,158,117,0.1); display: flex; flex-direction: column; }
+  .sidebar-header { padding: 16px 20px; border-bottom: 1px solid rgba(29,158,117,0.1); display: flex; justify-content: space-between; align-items: center; }
+  .sidebar-header h3 { font-size: 1.4rem; font-weight: 700; color: #fff; margin: 0; }
+  .new-chat-btn { width: 32px; height: 32px; border-radius: 50%; background: rgba(29,158,117,0.15); border: none; cursor: pointer; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; transition: all 200ms; }
+  .new-chat-btn:hover { background: rgba(29,158,117,0.25); }
+  .sidebar-search { padding: 12px 16px; }
+  .search-input { width: 100%; padding: 8px 14px; background: rgba(28,35,51,0.5); border: 1px solid rgba(29,158,117,0.15); border-radius: 18px; color: #fff; font-size: 0.85rem; }
+  .search-input:focus { outline: none; border-color: var(--teal-500); background: rgba(28,35,51,0.7); }
+  .conversations-list { flex: 1; overflow-y: auto; padding: 8px; }
+  .back-link { display: block; padding: 10px 16px; color: var(--teal-500); text-decoration: none; font-size: 0.9rem; border-radius: 6px; transition: all 200ms; }
+  .back-link:hover { background: rgba(29,158,117,0.1); }
+
+  .chat-main-wrapper { flex: 1; display: flex; flex-direction: column; background: var(--bg-base); }
+
+  .chat-header { padding: 12px 24px; border-bottom: 1px solid rgba(29,158,117,0.1); display: flex; align-items: center; justify-content: space-between; background: linear-gradient(90deg, rgba(13,17,30,0.4), rgba(13,17,30,0.2)); }
+  .header-user { display: flex; align-items: center; gap: 12px; flex: 1; }
+  .header-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #1d9e75, #0f6b52); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 0.9rem; }
+  .user-info h2 { font-size: 0.95rem; color: #fff; margin: 0; font-weight: 600; }
+  .members-info { font-size: 0.75rem; color: #888; margin: 0; }
+  .header-actions { display: flex; gap: 8px; }
+  .action-btn { width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all 200ms; }
+  .action-btn:hover { background: rgba(29,158,117,0.2); border-color: rgba(29,158,117,0.3); }
+
+  .messages-area { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 12px; }
+  .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 16px; }
+  .empty-icon { font-size: 3.5rem; opacity: 0.3; }
+  .empty-state h3 { color: #fff; font-size: 1.1rem; margin: 0; }
+  .empty-state p { color: #888; font-size: 0.9rem; margin: 0; }
+
+  .message-group { display: flex; gap: 8px; animation: slideIn 300ms ease-out; }
+  .message-group.sent { justify-content: flex-end; }
+  .msg-avatar { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; background: linear-gradient(135deg, #1d9e75, #0f6b52); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 0.75rem; }
+  .message-bubble-wrapper { display: flex; flex-direction: column; max-width: 70%; }
+  .message-group.sent .message-bubble-wrapper { align-items: flex-end; }
+  .message-bubble { padding: 8px 12px; border-radius: 10px; word-wrap: break-word; font-size: 0.9rem; }
+  .message-group.sent .message-bubble { background: linear-gradient(135deg, #1d9e75, #158b5c); color: #fff; }
+  .message-group.received .message-bubble { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(29,158,117,0.15); }
+  .message-meta { font-size: 0.7rem; color: #888; margin-top: 4px; display: flex; gap: 6px; }
+  .message-group.sent .message-meta { justify-content: flex-end; color: rgba(255,255,255,0.5); }
+
+  .input-area { padding: 12px 24px; border-top: 1px solid rgba(29,158,117,0.1); background: linear-gradient(90deg, rgba(13,17,30,0.4), rgba(13,17,30,0.2)); display: flex; gap: 8px; align-items: flex-end; }
+  .input-actions { display: flex; gap: 4px; }
+  .input-btn { width: 34px; height: 34px; border-radius: 8px; background: rgba(29,158,117,0.1); border: 1px solid rgba(29,158,117,0.2); color: #888; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all 200ms; }
+  .input-btn:hover { background: rgba(29,158,117,0.2); color: var(--teal-500); }
+  .message-input { flex: 1; padding: 8px 14px; background: rgba(28,35,51,0.5); border: 1px solid rgba(29,158,117,0.15); border-radius: 18px; color: #fff; font-size: 0.9rem; resize: none; min-height: 34px; max-height: 80px; }
+  .message-input::placeholder { color: rgba(255,255,255,0.3); }
+  .message-input:focus { outline: none; border-color: var(--teal-500); background: rgba(28,35,51,0.7); }
+  .send-btn { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #1d9e75, #158b5c); border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all 200ms; }
+  .send-btn:hover { box-shadow: 0 4px 12px rgba(29,158,117,0.3); }
+
+  .emoji-picker { position: absolute; bottom: 80px; left: 100px; background: rgba(13,17,30,0.95); border: 1px solid rgba(29,158,117,0.2); border-radius: 12px; padding: 12px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; z-index: 1000; }
+  .emoji-btn { width: 40px; height: 40px; border: none; background: rgba(29,158,117,0.1); border-radius: 8px; cursor: pointer; font-size: 1.2rem; transition: all 200ms; }
+  .emoji-btn:hover { background: rgba(29,158,117,0.2); transform: scale(1.1); }
+
+  @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .messages-area::-webkit-scrollbar { width: 4px; }
+  .messages-area::-webkit-scrollbar-thumb { background: rgba(29,158,117,0.3); border-radius: 2px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-wrapper">
+  <!-- LEFT SIDEBAR -->
+  <aside class="chat-sidebar">
+    <div class="sidebar-header">
+      <h3>Messages</h3>
+      <a href="{% url 'chat:new_chat' %}" class="new-chat-btn">➕</a>
+    </div>
+    <div class="sidebar-search">
+      <input type="text" placeholder="Search conversations..." class="search-input" id="searchBar">
+    </div>
+    <div class="conversations-list">
+      <a href="{% url 'chat:dashboard' %}" class="back-link">← Back to Dashboard</a>
+    </div>
+  </aside>
+
+  <!-- CENTER: CHAT AREA -->
+  <div class="chat-main-wrapper">
+    <!-- Header -->
+    <header class="chat-header">
+      <div class="header-user">
+        <div class="header-avatar">{% if other_user %}{{ other_user.first_name|first|upper }}{% else %}G{% endif %}</div>
+        <div class="user-info">
+          <h2>{% if other_user %}{{ other_user.first_name|default:other_user.username }}{% else %}{{ room.name|default:"Group Chat" }}{% endif %}</h2>
+          <p class="members-info">{% if other_user %}Online{% else %}{{ room.members.count }} members{% endif %}</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="action-btn" onclick="voiceCall()">📞</button>
+        <button class="action-btn" onclick="videoCall()">📹</button>
+        <button class="action-btn" onclick="showMore()">⋮</button>
+      </div>
+    </header>
+
+    <!-- Messages -->
+    <div class="messages-area" id="messagesContainer">
+      {% for message in messages %}
+      <div class="message-group {% if message.sender == request.user %}sent{% else %}received{% endif %}" data-message-id="{{ message.id }}">
+        {% if message.sender != request.user %}<div class="msg-avatar">{{ message.sender.first_name|first|upper }}</div>{% endif %}
+        <div class="message-bubble-wrapper">
+          {% if message.msg_type == 'image' %}
+            <div class="message-bubble" style="padding: 0; background: none; border: none;">
+              <img src="{{ message.content }}" style="max-width: 280px; max-height: 300px; border-radius: 10px; display: block;">
+            </div>
+          {% elif message.msg_type == 'audio' %}
+            <div class="message-bubble" style="padding: 0; background: none; border: none;">
+              <audio controls style="max-width: 280px; width: 100%; display: block;"><source src="{{ message.content }}"></audio>
+            </div>
+          {% else %}
+            <div class="message-bubble">{{ message.content }}</div>
+          {% endif %}
+          <div class="message-meta">
+            <span>{{ message.timestamp|date:"H:i" }}</span>
+            {% if message.sender == request.user %}<span>✓✓</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state">
+        <div class="empty-icon">💬</div>
+        <h3>No messages yet</h3>
+        <p>Start a conversation to begin chatting</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Input -->
+    <div class="input-area">
+      <div class="input-actions">
+        <button class="input-btn" onclick="openAttachment()" title="📎">📎</button>
+        <button class="input-btn" onclick="toggleEmojiPicker()" title="😊">😊</button>
+      </div>
+      <input type="text" id="messageInput" class="message-input" placeholder="Type a message...">
+      <div class="input-actions">
+        <button class="input-btn" onclick="voiceRecord()" title="🎤">🎤</button>
+        <button class="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="emojiPicker" class="emoji-picker" style="display:none;"></div>
+
+<script src="{% static 'js/websocket.js' %}"></script>
+<script>
+  // Global variables - DIRECT ASSIGNMENT
+  const roomId = {{ room.id }};
+  const userId = {{ request.user.id }};
+  const userName = '{{ request.user.username }}';
+  let socket = null;
+  let isRecording = false;
+  let currentMediaRecorder = null;
+  let currentStream = null;
+
+  console.log('✅ Script loaded!', { roomId, userId, userName });
+
+  // Initialize WebSocket
+  if (typeof MilaSocket !== 'undefined') {
+    if (roomId === 0) {
+      console.error('❌ roomId is 0! Template variables did not render correctly');
+    } else {
+      console.log('✅ Creating WebSocket for roomId:', roomId);
+      socket = new MilaSocket(roomId);
+      socket.onChatMessage = (data) => {
+        console.log('💬 Message received:', data);
+        addMessage(data);
+      };
+      socket.onVoiceCall = (data) => {
+        console.log('📞 Voice call from', data.username);
+        showNotif(`📞 ${data.username} is calling...`, 'info');
+      };
+      socket.onVideoCall = (data) => {
+        console.log('📹 Video call from', data.username);
+        showNotif(`📹 ${data.username} is calling...`, 'info');
+      };
+      socket.onMessageDeleted = (data) => {
+        console.log('🗑️ Message deleted:', data.message_id);
+        const msgEl = document.querySelector(`[data-message-id="${data.message_id}"]`);
+        if (msgEl) msgEl.remove();
+      };
+    }
+  } else {
+    console.error('❌ MilaSocket class not found!');
+  }
+
+  // Add Enter key listener
+  document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('messageInput');
+    if (input) {
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+    }
+  });
+
+  function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    if (!socket) {
+      console.error('❌ Socket not initialized');
+      showNotif('❌ WebSocket not initialized', 'error');
+      return;
+    }
+
+    if (socket.isConnected()) {
+      console.log('📤 Sending message:', msg);
+      socket.sendMessage(msg);
+      input.value = '';
+      showNotif('✓ Message sent', 'success');
+    } else {
+      const state = socket.ws ? `state: ${socket.ws.readyState}` : 'ws is null';
+      console.error('❌ Socket not connected', state);
+      showNotif(`❌ Not connected (${state})`, 'error');
+    }
+  }
+
+  function addMessage(data) {
+    const container = document.getElementById('messagesContainer');
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'message-group ' + (data.sender.id === userId ? 'sent' : 'received');
+    msgDiv.setAttribute('data-message-id', data.message_id);
+    const time = new Date(data.timestamp).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    const initials = data.sender.first_name ? data.sender.first_name[0].toUpperCase() : data.sender.username[0].toUpperCase();
+
+    let contentHtml = '';
+    if (data.msg_type === 'image' && data.content.startsWith('data:image')) {
+      contentHtml = `<img src="${data.content}" style="max-width: 280px; max-height: 300px; border-radius: 10px; margin: 8px 0;">`;
+    } else if (data.msg_type === 'audio' && data.content.startsWith('data:audio')) {
+      contentHtml = `<audio controls style="max-width: 280px; width: 100%; margin: 8px 0;"><source src="${data.content}"></audio>`;
+    } else {
+      contentHtml = `<div class="message-bubble">${escapeHtml(data.content)}</div>`;
+    }
+
+    const deleteBtn = data.sender.id === userId ? `<button onclick="deleteMessage(${data.message_id})" style="background: none; border: none; color: #888; cursor: pointer; font-size: 0.8rem; margin-left: 8px;">🗑️</button>` : '';
+
+    msgDiv.innerHTML = `
+      ${data.sender.id !== userId ? `<div class="msg-avatar">${initials}</div>` : ''}
+      <div class="message-bubble-wrapper">
+        ${contentHtml}
+        <div class="message-meta" style="display: flex; align-items: center;">
+          <span>${time}</span>
+          ${data.sender.id === userId ? '<span>✓✓</span>' : ''}
+          ${deleteBtn}
+        </div>
+      </div>
+    `;
+    container.appendChild(msgDiv);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function escapeHtml(text) {
+    const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
+
+  function deleteMessage(messageId) {
+    if (!confirm('Delete this message?')) return;
+    if (socket && socket.isConnected()) {
+      socket.send('delete_message', { message_id: messageId });
+      showNotif('🗑️ Message deleted', 'success');
+    } else {
+      showNotif('❌ Not connected', 'error');
+    }
+  }
+
+  function toggleEmojiPicker() {
+    const picker = document.getElementById('emojiPicker');
+    if (picker.style.display === 'none') {
+      picker.style.display = 'grid';
+      if (picker.children.length === 0) {
+        const emojis = ['😀', '😂', '😍', '😎', '🔥', '👍', '🎉', '🚀', '💯', '✨', '😊', '😜', '🤔', '😢', '😡', '👏', '🙌', '💪', '🤝', '👋', '😴', '🤮', '😷', '🤗', '😘'];
+        emojis.forEach(emoji => {
+          const btn = document.createElement('button');
+          btn.className = 'emoji-btn';
+          btn.textContent = emoji;
+          btn.onclick = () => {
+            document.getElementById('messageInput').value += emoji;
+            document.getElementById('messageInput').focus();
+            picker.style.display = 'none';
+          };
+          picker.appendChild(btn);
+        });
+      }
+    } else {
+      picker.style.display = 'none';
+    }
+  }
+
+  function openAttachment() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (socket && socket.isConnected()) {
+            socket.send('chat_message', { content: reader.result, msg_type: 'image' });
+            showNotif('📸 Image sent', 'success');
+          }
+        };
+        reader.readAsDataURL(file);
+      } else {
+        showNotif('Only images supported', 'warning');
+      }
+    };
+    input.click();
+  }
+
+  async function voiceRecord() {
+    if (isRecording) {
+      isRecording = false;
+      if (currentMediaRecorder) {
+        console.log('⏹️ Stopping voice recording...');
+        currentMediaRecorder.stop();
+      }
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      const chunks = [];
+
+      currentMediaRecorder = mediaRecorder;
+      currentStream = stream;
+
+      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        console.log('🎵 Voice recording stopped, sending...');
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (socket && socket.isConnected()) {
+            console.log('📤 Sending voice message');
+            socket.send('chat_message', { content: reader.result, msg_type: 'audio' });
+            showNotif('🎵 Voice sent', 'success');
+          } else {
+            showNotif('❌ Not connected', 'error');
+          }
+        };
+        reader.readAsDataURL(blob);
+        stream.getTracks().forEach(t => t.stop());
+        currentMediaRecorder = null;
+        currentStream = null;
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      showNotif('🎤 Recording... click again to stop', 'info');
+    } catch (e) {
+      console.error('Mic error:', e);
+      showNotif('❌ Microphone access denied', 'error');
+    }
+  }
+
+  function voiceCall() {
+    showNotif('📞 Voice call - Coming soon! 🔜', 'info');
+  }
+
+  function videoCall() {
+    showNotif('📹 Video call - Coming soon! 🔜', 'info');
+  }
+
+  function videoCall() {
+    if (!socket || !socket.isConnected()) {
+      showNotif('❌ Not connected', 'error');
+      return;
+    }
+    console.log('📹 Initiating video call...');
+    socket.send('video_call', { type: 'call_initiated' });
+    showNotif('📹 Video call initiated', 'info');
+  }
+
+  function showMore() {
+    showNotif('⋮ More features available', 'info');
+  }
+
+  function showNotif(msg, type) {
+    const notif = document.createElement('div');
+    notif.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: ${type === 'success' ? '#22C55E' : type === 'error' ? '#EF4444' : '#3B82F6'};
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 9999;
+      font-size: 14px;
+    `;
+    notif.textContent = msg;
+    document.body.appendChild(notif);
+    setTimeout(() => notif.remove(), 3000);
+  }
+</script>
+{% endblock %}

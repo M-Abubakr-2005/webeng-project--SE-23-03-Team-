@@ -1,0 +1,72 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome to Mila{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-split">
+        <div class="auth-brand">
+            <div class="brand-content">
+                <div class="brand-logo">
+                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                        <circle cx="40" cy="40" r="38" fill="url(#gradient)" stroke="var(--teal-500)" stroke-width="2"/>
+                        <text x="40" y="52" font-size="48" font-weight="700" text-anchor="middle" fill="var(--text-on-teal)" font-family="Poppins">M</text>
+                        <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:var(--teal-500);stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:var(--teal-600);stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h1 class="brand-title">Mila</h1>
+                <p class="brand-tagline">Connect friends easily & quickly</p>
+            </div>
+        </div>
+
+        <div class="auth-form-container">
+            <div class="auth-form-box">
+                <h2>Welcome to Mila!</h2>
+                <p class="auth-subtitle">Real-time messaging made simple</p>
+
+                <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+                    <div class="card">
+                        <h3 style="margin-top: 0;">Getting Started</h3>
+                        <ol style="color: var(--text-secondary); line-height: 1.8;">
+                            <li>Create your account with email and password</li>
+                            <li>Complete your profile with avatar and bio</li>
+                            <li>Search and add friends</li>
+                            <li>Start messaging in real-time</li>
+                        </ol>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="margin-top: 0;">Features</h3>
+                        <ul style="color: var(--text-secondary); line-height: 1.8;">
+                            <li>⚡ Instant message delivery</li>
+                            <li>👥 Create group chats</li>
+                            <li>🎤 Send voice messages</li>
+                            <li>🌙 Dark & Light mode</li>
+                        </ul>
+                    </div>
+
+                    <div style="display: flex; gap: var(--spacing-md);">
+                        <a href="{% url 'accounts:login' %}" class="btn btn-secondary btn-large btn-pill" style="flex: 1; text-align: center;">Log In</a>
+                        <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-large btn-pill" style="flex: 1; text-align: center;">Sign Up</a>
+                    </div>
+                </div>
+
+                <div class="auth-footer" style="margin-top: var(--spacing-lg);">
+                    <p>Read more at <a href="{% url 'core:landing' %}">our landing page</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

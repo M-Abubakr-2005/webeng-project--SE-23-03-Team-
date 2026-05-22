@@ -1,0 +1,219 @@
+/* Mila Chat App — Design Token System */
+
+:root {
+  /* === PRIMARY TEAL FAMILY (Premium Green) === */
+  --teal-50:   #E0F7F4;
+  --teal-100:  #B3EBE6;
+  --teal-300:  #5DD9C8;
+  --teal-400:  #23bf8c;
+  --teal-500:  #1d9e75;
+  --teal-600:  #157861;
+  --teal-700:  #0F5C50;
+  --teal-glow: rgba(29, 158, 117, 0.4);
+
+  /* === BACKGROUNDS (Premium Dark — GitHub inspired) === */
+  --bg-void:      #07000F;
+  --bg-base:      #0D1117;
+  --bg-elevated:  #161B22;
+  --bg-surface:   #1C2333;
+  --bg-glass:     rgba(22, 27, 34, 0.8);
+  --bg-overlay:   rgba(13, 17, 23, 0.95);
+
+  /* === ACCENT (depth/gradient complement) === */
+  --accent-dark:  #1D3557;
+  --accent-mid:   #2D4A6F;
+  --accent-soft:  rgba(45, 74, 111, 0.15);
+
+  /* === GRADIENTS === */
+  --gradient-hero:    linear-gradient(135deg, #07000F 0%, #1D3557 50%, #0D1117 100%);
+  --gradient-teal:    linear-gradient(135deg, #1d9e75 0%, #157861 100%);
+  --gradient-card:    linear-gradient(145deg, rgba(28,35,51,0.95), rgba(22,27,34,1));
+  --gradient-bubble:  linear-gradient(135deg, #1d9e75, #157861);
+
+  /* === MESSAGE BUBBLES === */
+  --bubble-sent:     var(--gradient-bubble);
+  --bubble-received: #1E2540;
+
+  /* === SEMANTIC COLORS === */
+  --color-online:  #22C55E;
+  --color-unread:  #EF4444;
+  --color-warning: #F59E0B;
+  --color-error:   #EF4444;
+  --color-success: #22C55E;
+
+  /* === TEXT === */
+  --text-primary:   #F0F4FF;
+  --text-secondary: #8892B0;
+  --text-muted:     #4A5580;
+  --text-on-teal:   #FFFFFF;
+
+  /* === BORDERS & DIVIDERS === */
+  --border-subtle:  rgba(255,255,255,0.06);
+  --border-default: rgba(255,255,255,0.1);
+  --border-teal:    rgba(45,140,122,0.4);
+
+  /* === SHADOWS === */
+  --shadow-card:   0 8px 32px rgba(0,0,0,0.4);
+  --shadow-teal:   0 4px 24px rgba(45,140,122,0.3);
+  --shadow-float:  0 20px 60px rgba(0,0,0,0.6);
+  --shadow-sm:     0 2px 8px rgba(0,0,0,0.3);
+
+  /* === BORDER RADIUS === */
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+  --radius-pill: 9999px;
+
+  /* === SPACING === */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 40px;
+  --spacing-2xl: 64px;
+
+  /* === TYPOGRAPHY === */
+  --font-sans: 'Inter', 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-size-xs:  11px;
+  --font-size-sm:  13px;
+  --font-size-md:  15px;
+  --font-size-lg:  18px;
+  --font-size-xl:  24px;
+  --font-size-hero: clamp(2.5rem, 6vw, 4.5rem);
+
+  /* === FONT WEIGHTS === */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* === LINE HEIGHT === */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* === TRANSITIONS === */
+  --transition-fast:   150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base:   250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   400ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* === Z-INDEX === */
+  --z-dropdown:  10;
+  --z-sticky:    20;
+  --z-fixed:     30;
+  --z-modal:     40;
+  --z-tooltip:   50;
+}
+
+/* === LIGHT MODE OVERRIDES === */
+[data-theme="light"] {
+  --bg-void:      #F8FAFC;
+  --bg-base:      #FFFFFF;
+  --bg-elevated:  #F1F5F9;
+  --bg-surface:   #E2E8F0;
+  --bg-overlay:   rgba(241, 245, 249, 0.95);
+
+  --text-primary:   #0F172A;
+  --text-secondary: #475569;
+  --text-muted:     #94A3B8;
+
+  --border-subtle:  rgba(0,0,0,0.06);
+  --border-default: rgba(0,0,0,0.1);
+
+  --bubble-received: #E2E8F0;
+
+  --shadow-card:   0 8px 32px rgba(0,0,0,0.08);
+  --shadow-teal:   0 4px 24px rgba(45,140,122,0.15);
+  --shadow-float:  0 20px 60px rgba(0,0,0,0.15);
+  --shadow-sm:     0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* === UTILITY CLASSES === */
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.bg-base {
+  background-color: var(--bg-base);
+}
+
+.bg-elevated {
+  background-color: var(--bg-elevated);
+}
+
+.border-subtle {
+  border-color: var(--border-subtle);
+}
+
+.rounded-sm {
+  border-radius: var(--radius-sm);
+}
+
+.rounded-md {
+  border-radius: var(--radius-md);
+}
+
+.rounded-lg {
+  border-radius: var(--radius-lg);
+}
+
+.rounded-xl {
+  border-radius: var(--radius-xl);
+}
+
+.rounded-pill {
+  border-radius: var(--radius-pill);
+}
+
+.shadow-card {
+  box-shadow: var(--shadow-card);
+}
+
+.shadow-teal {
+  box-shadow: var(--shadow-teal);
+}
+
+.shadow-float {
+  box-shadow: var(--shadow-float);
+}
+
+/* === GLASSMORPHISM === */
+.glass {
+  background: var(--bg-overlay);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border-subtle);
+}
+
+/* === TRANSITIONS === */
+.transition-fast {
+  transition: all var(--transition-fast);
+}
+
+.transition-base {
+  transition: all var(--transition-base);
+}
+
+.transition-slow {
+  transition: all var(--transition-slow);
+}
+
+/* === FOCUS STATES === */
+.focus-ring {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.focus-ring:focus {
+  outline-color: var(--teal-500);
+}

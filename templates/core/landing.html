@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mila - Real-Time Chat & Messaging{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing.css' %}">
+{% endblock %}
+
+{% block content %}
+<nav class="navbar">
+    <div class="container">
+        <div class="navbar-content">
+            <div class="navbar-logo">
+                <svg width="40" height="40" viewBox="0 0 80 80" fill="none">
+                    <circle cx="40" cy="40" r="38" fill="url(#gradient)" stroke="var(--teal-500)" stroke-width="2"/>
+                    <text x="40" y="52" font-size="48" font-weight="700" text-anchor="middle" fill="var(--text-on-teal)" font-family="Poppins">M</text>
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:var(--teal-500);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:var(--teal-600);stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>Mila</span>
+            </div>
+
+            <div class="navbar-actions">
+                <a href="{% url 'accounts:login' %}" class="btn btn-secondary">Log In</a>
+                <a href="{% url 'accounts:register' %}" class="btn btn-primary">Get Started</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-heading">Chat Without Limits.<br>Connect Without Borders.</h1>
+            <p class="hero-subheading">Mila brings your conversations to life — real-time, private, and beautifully designed.</p>
+            <div class="hero-cta">
+                <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-large btn-pill">Get Started Free</a>
+                <button class="btn btn-secondary btn-large btn-pill" onclick="scrollToSection('how-it-works')">See How It Works</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="container">
+        <h2>Powerful Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Lightning-Fast Messaging</h3>
+                <p>Messages delivered in milliseconds via WebSocket technology</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3>Group Chats</h3>
+                <p>Create group chats with unlimited members and manage conversations</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎤</div>
+                <h3>Voice Messages</h3>
+                <p>Hold to record and send crystal-clear audio messages instantly</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📸</div>
+                <h3>Stories & Status</h3>
+                <p>Share moments that disappear in 24 hours with your friends</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">✓</div>
+                <h3>Read Receipts</h3>
+                <p>Know exactly when your message was seen by recipients</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌙</div>
+                <h3>Dark & Light Mode</h3>
+                <p>Beautiful in any lighting condition with theme toggle</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="how-it-works" id="how-it-works">
+    <div class="container">
+        <h2>How It Works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Create Account</h3>
+                <p>Sign up with your email in seconds</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Find Friends</h3>
+                <p>Search and connect with people you know</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Start Chatting</h3>
+                <p>Enjoy real-time messaging with everyone</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="stats">
+    <div class="container">
+        <div class="stat-item">
+            <div class="stat-number" data-target="10000">10K+</div>
+            <p>Active Users</p>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" data-target="1000000">1M+</div>
+            <p>Messages Sent</p>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" data-target="999">99.9%</div>
+            <p>Uptime</p>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" data-target="50">50+</div>
+            <p>Countries</p>
+        </div>
+    </div>
+</section>
+
+<section class="about">
+    <div class="container">
+        <h2>About This Project</h2>
+        <p><strong>Mila</strong> is a real-time chat application built as a university project (SE-23-03) at the University of Sargodha, supervised by Dr. Ahmad Mustafa.</p>
+        <p><strong>Team:</strong> Muhammad Abu Bakar, Tehzeeb Shahid, Mir Mohammad</p>
+        <p>Built with <strong>Django</strong>, <strong>WebSockets</strong>, and modern web technologies, Mila demonstrates a complete real-time communication platform with professional UI/UX design.</p>
+    </div>
+</section>
+
+<section class="cta-final">
+    <div class="container">
+        <h2>Start Chatting Today</h2>
+        <p>Join thousands of users on Mila. It's free, fast, and private.</p>
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-large btn-pill">Create Free Account</a>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <p>&copy; 2026 Mila Chat. Built with ❤️ by SE-23-03 Team. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="{% static 'js/landing.js' %}"></script>
+{% endblock %}

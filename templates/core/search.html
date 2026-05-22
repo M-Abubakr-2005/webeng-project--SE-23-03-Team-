@@ -1,0 +1,42 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search - Mila{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: var(--spacing-xl) 0; max-width: 600px; margin: 0 auto;">
+    <a href="{% url 'chat:dashboard' %}" class="btn btn-secondary" style="margin-bottom: var(--spacing-lg);">← Back</a>
+
+    <div class="card">
+        <h2>Search Users</h2>
+        <form method="GET" style="margin-bottom: var(--spacing-lg);">
+            <input type="text" name="q" class="form-control" placeholder="Search by username or email..." value="{{ query }}">
+            <button type="submit" class="btn btn-primary" style="margin-top: var(--spacing-sm);">Search</button>
+        </form>
+
+        {% if results %}
+            <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+                {% for user in results %}
+                <div style="display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-md); background: var(--bg-base); border-radius: var(--radius-md);">
+                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                    <div style="flex: 1;">
+                        <strong>{{ user.get_full_name|default:user.username }}</strong>
+                        <p style="margin: 0; font-size: var(--font-size-sm); color: var(--text-secondary);">@{{ user.username }}</p>
+                    </div>
+                    <form method="POST" action="{% url 'chat:new_chat' %}" style="margin: 0;">
+                        {% csrf_token %}
+                        <input type="hidden" name="recipient_id" value="{{ user.id }}">
+                        <button type="submit" class="btn btn-primary btn-small">Message</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        {% elif query %}
+            <p style="text-align: center; color: var(--text-secondary);">No users found for "{{ query }}"</p>
+        {% else %}
+            <p style="text-align: center; color: var(--text-secondary);">Search for users to start chatting</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

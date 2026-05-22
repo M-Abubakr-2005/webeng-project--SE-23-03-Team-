@@ -1,0 +1,63 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Settings - Mila{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: var(--spacing-xl) 0; max-width: 800px; margin: 0 auto;">
+    <div style="display: flex; gap: var(--spacing-lg);">
+        <aside style="width: 200px; border-right: 1px solid var(--border-subtle); padding-right: var(--spacing-lg);">
+            <nav style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+                <a href="#account" class="btn btn-ghost" style="justify-content: flex-start;">Account</a>
+                <a href="#appearance" class="btn btn-ghost" style="justify-content: flex-start;">Appearance</a>
+                <a href="#notifications" class="btn btn-ghost" style="justify-content: flex-start;">Notifications</a>
+                <a href="#privacy" class="btn btn-ghost" style="justify-content: flex-start;">Privacy</a>
+                <a href="{% url 'accounts:logout' %}" class="btn btn-ghost" style="justify-content: flex-start;">Logout</a>
+            </nav>
+        </aside>
+
+        <main style="flex: 1;">
+            <h2>Settings</h2>
+
+            {% if theme_saved %}
+            <div class="alert alert-success" style="margin-bottom: var(--spacing-lg);">Theme updated successfully!</div>
+            {% endif %}
+
+            <div class="card" id="appearance" style="margin-bottom: var(--spacing-lg);">
+                <h3>Appearance</h3>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="themeSelect">Theme</label>
+                        <select id="themeSelect" name="theme" class="form-control" onchange="changeTheme(this.value)">
+                            <option value="dark" {% if theme == 'dark' %}selected{% endif %}>Dark</option>
+                            <option value="light" {% if theme == 'light' %}selected{% endif %}>Light</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+
+            <div class="card" id="account">
+                <h3>Account Information</h3>
+                <p><strong>Username:</strong> {{ request.user.username }}</p>
+                <p><strong>Email:</strong> {{ request.user.email }}</p>
+                <p><strong>Member Since:</strong> {{ request.user.date_joined|date:"M d, Y" }}</p>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+function changeTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('mila-theme', theme);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('mila-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,311 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Mila Chat{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">
+                <h2>Messages</h2>
+                <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
+                    <button id="sidebarToggle" class="sidebarToggle" title="Close Menu">✕</button>
+                    <a href="{% url 'chat:new_chat' %}" class="btn btn-primary btn-small" title="New Chat">+</a>
+                </div>
+            </div>
+            <input type="text" class="search-bar" id="searchBar" placeholder="Search conversations...">
+            <button class="btn btn-primary" id="addFriendBtn" style="width: 100%; margin-top: var(--spacing-md);">+ Add Friend</button>
+        </div>
+
+        <div class="stories-row">
+            <div class="story-item my-story">
+                <div class="story-avatar">
+                    {% if request.user.profile.avatar %}
+                        <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}">
+                    {% else %}
+                        <div class="avatar-initials">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}</div>
+                    {% endif %}
+                    <span class="story-add">+</span>
+                    <span class="online-dot"></span>
+                </div>
+                <p>My Story</p>
+            </div>
+            {% for friend in online_friends %}
+            <div class="story-item">
+                <div class="story-avatar" title="{{ friend.username }} - Online">
+                    {% if friend.profile.avatar %}
+                        <img src="{{ friend.profile.avatar.url }}" alt="{{ friend.username }}">
+                    {% else %}
+                        <div class="avatar-initials">{{ friend.first_name|first|upper }}{{ friend.last_name|first|upper }}</div>
+                    {% endif %}
+                    <span class="online-dot"></span>
+                </div>
+                <p>{{ friend.first_name|default:friend.username|truncatechars:8 }}</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="conversations-list">
+            {% if rooms %}
+                {% for item in rooms %}
+                <a href="{% url 'chat:room' item.room.id %}" class="conversation-item {% if item.unread_count > 0 %}unread{% endif %}">
+                    <div class="conversation-avatar">
+                        {% if item.other_user %}
+                            {% if item.other_user.profile.avatar %}
+                                <img src="{{ item.other_user.profile.avatar.url }}" alt="{{ item.other_user.username }}">
+                            {% else %}
+                                <div class="avatar-initials">{{ item.other_user.first_name|first|upper }}{{ item.other_user.last_name|first|upper }}</div>
+                            {% endif %}
+                            {% if item.other_user.profile.is_online %}<span class="online-dot"></span>{% endif %}
+                        {% else %}
+                            <img src="{{ item.room.avatar.url }}" alt="{{ item.room.name }}">
+                        {% endif %}
+                    </div>
+                    <div class="conversation-info">
+                        <div class="conversation-header">
+                            <h3>{{ item.room.name|default:item.other_user.first_name|default:item.other_user.username }}</h3>
+                            <span class="time">{{ item.last_message.timestamp|date:"M d" }}</span>
+                        </div>
+                        <p class="conversation-preview">
+                            {% if item.last_message %}
+                                {{ item.last_message.content|truncatechars:50 }}
+                            {% else %}
+                                No messages yet
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if item.unread_count > 0 %}
+                    <span class="unread-badge">{{ item.unread_count }}</span>
+                    {% endif %}
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>No conversations yet</p>
+                    <a href="{% url 'chat:new_chat' %}" class="btn btn-primary btn-small">Start a conversation</a>
+                </div>
+            {% endif %}
+        </div>
+    </aside>
+
+    <main class="chat-main">
+        <div class="empty-chat-state" style="overflow-y: auto; width: 100%;">
+            <div style="padding: var(--spacing-lg); max-width: 800px; margin: 0 auto;">
+                {% if friend_requests %}
+                <div class="card" style="margin-bottom: var(--spacing-lg); animation: slideInLeft 500ms ease-out;">
+                    <h3 style="margin-top: 0;">Friend Requests</h3>
+                    <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+                        {% for req in friend_requests %}
+                        <div style="display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-md); background: var(--bg-base); border-radius: var(--radius-md); animation: fadeIn 400ms ease-out;">
+                            {% if req.from_user.profile.avatar %}
+                                <img src="{{ req.from_user.profile.avatar.url }}" alt="{{ req.from_user.username }}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                            {% else %}
+                                <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--teal-500), var(--teal-600)); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">{{ req.from_user.first_name|first|upper }}{{ req.from_user.last_name|first|upper }}</div>
+                            {% endif %}
+                            <div style="flex: 1;">
+                                <strong>{{ req.from_user.get_full_name|default:req.from_user.username }}</strong>
+                                <p style="margin: 0; font-size: var(--font-size-sm); color: var(--text-secondary);">@{{ req.from_user.username }}</p>
+                            </div>
+                            <div style="display: flex; gap: var(--spacing-sm);">
+                                <form method="POST" action="{% url 'accounts:accept_friend_request' req.id %}" style="margin: 0;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary btn-small">✓ Accept</button>
+                                </form>
+                                <form method="POST" action="{% url 'accounts:reject_friend_request' req.id %}" style="margin: 0;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-secondary btn-small">✕ Reject</button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if suggested_friends %}
+                <div class="card" style="animation: slideInLeft 600ms ease-out;">
+                    <h3 style="margin-top: 0;">Add Friends</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md);">People you might know</p>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md);">
+                        {% for friend in suggested_friends %}
+                        <div style="padding: var(--spacing-md); background: var(--bg-base); border-radius: var(--radius-md); text-align: center; animation: fadeIn 500ms ease-out; transition: all var(--transition-base);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                            {% if friend.profile.avatar %}
+                                <img src="{{ friend.profile.avatar.url }}" alt="{{ friend.username }}" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; margin-bottom: var(--spacing-sm);">
+                            {% else %}
+                                <div style="width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--teal-500), var(--teal-600)); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin: 0 auto var(--spacing-sm);">{{ friend.first_name|first|upper }}{{ friend.last_name|first|upper }}</div>
+                            {% endif %}
+                            <h4 style="margin: var(--spacing-sm) 0;">{{ friend.get_full_name|default:friend.username }}</h4>
+                            <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-online);">● Online</p>
+                            <form method="POST" action="{% url 'accounts:send_friend_request' friend.id %}" style="margin-top: var(--spacing-md);">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary btn-small" style="width: 100%;">+ Add Friend</button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state-content">
+                    <h2>Welcome to Mila!</h2>
+                    <p>Select a conversation to start chatting, or create a new one.</p>
+                    <a href="{% url 'chat:new_chat' %}" class="btn btn-primary btn-large btn-pill">New Conversation</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    <aside class="sidebar-right">
+        <div class="user-profile-mini">
+            <div class="user-avatar-container">
+                {% if request.user.profile.avatar %}
+                    <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}" class="user-avatar">
+                {% else %}
+                    <div class="user-avatar user-avatar-initials">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}</div>
+                {% endif %}
+                <span class="online-dot-mini"></span>
+            </div>
+            <h4>{{ request.user.first_name|default:request.user.username }}</h4>
+            <p class="user-status">{{ request.user.profile.get_theme_display }}</p>
+            <div class="user-actions">
+                <a href="{% url 'accounts:profile' request.user.id %}" class="btn btn-secondary btn-small">Profile</a>
+                <a href="{% url 'core:settings' %}" class="btn btn-secondary btn-small">Settings</a>
+                <a href="{% url 'accounts:logout' %}" class="btn btn-secondary btn-small">Logout</a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Add Friend Modal -->
+    <div id="addFriendModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Friend</h3>
+                <button class="modal-close" id="closeFriendModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="friendSearch" class="search-bar" placeholder="Search by username...">
+                <div id="searchResults" class="search-results"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelFriendModal">Cancel</button>
+                <button class="btn btn-primary" id="searchFriendBtn">Search</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/dashboard.js' %}"></script>
+<script>
+// Add Friend Modal
+const addFriendBtn = document.getElementById('addFriendBtn');
+const addFriendModal = document.getElementById('addFriendModal');
+const closeFriendModal = document.getElementById('closeFriendModal');
+const cancelFriendModal = document.getElementById('cancelFriendModal');
+const searchFriendBtn = document.getElementById('searchFriendBtn');
+const friendSearch = document.getElementById('friendSearch');
+const searchResults = document.getElementById('searchResults');
+
+addFriendBtn.addEventListener('click', () => {
+    addFriendModal.style.display = 'flex';
+    friendSearch.focus();
+});
+
+closeFriendModal.addEventListener('click', () => {
+    addFriendModal.style.display = 'none';
+    friendSearch.value = '';
+    searchResults.innerHTML = '';
+});
+
+cancelFriendModal.addEventListener('click', () => {
+    addFriendModal.style.display = 'none';
+    friendSearch.value = '';
+    searchResults.innerHTML = '';
+});
+
+addFriendModal.addEventListener('click', (e) => {
+    if (e.target === addFriendModal) {
+        addFriendModal.style.display = 'none';
+        friendSearch.value = '';
+        searchResults.innerHTML = '';
+    }
+});
+
+searchFriendBtn.addEventListener('click', async () => {
+    const searchTerm = friendSearch.value.trim();
+    if (!searchTerm) return;
+
+    try {
+        const response = await fetch(`/chat/api/search-users/?q=${encodeURIComponent(searchTerm)}`);
+        const data = await response.json();
+
+        searchResults.innerHTML = '';
+        if (data.users && data.users.length > 0) {
+            data.users.forEach(user => {
+                const userDiv = document.createElement('div');
+                userDiv.className = 'search-result-item';
+                const initials = (user.first_name[0] || user.username[0]) + (user.last_name[0] || '');
+                userDiv.innerHTML = `
+                    <div class="result-avatar">
+                        ${user.avatar ? `<img src="${user.avatar}">` : `<div class="avatar-initials">${initials.toUpperCase()}</div>`}
+                    </div>
+                    <div class="result-info">
+                        <h4>${user.first_name && user.last_name ? user.first_name + ' ' + user.last_name : user.username}</h4>
+                        <p>@${user.username}</p>
+                    </div>
+                    <button class="btn btn-primary btn-small" onclick="sendFriendRequest(${user.id})">Add</button>
+                `;
+                searchResults.appendChild(userDiv);
+            });
+        } else {
+            searchResults.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No users found</p>';
+        }
+    } catch (error) {
+        console.error('Search error:', error);
+        searchResults.innerHTML = '<p style="text-align: center; color: var(--color-unread);">Error searching users</p>';
+    }
+});
+
+friendSearch.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        searchFriendBtn.click();
+    }
+});
+
+function sendFriendRequest(userId) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+    fetch(`/friend-request/${userId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        }
+    }).then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    }).then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            alert('Friend request sent!');
+            addFriendModal.style.display = 'none';
+            friendSearch.value = '';
+            searchResults.innerHTML = '';
+            // Reload page to show updated friend requests
+            location.reload();
+        } else if (data.error) {
+            alert(data.error);
+        }
+    }).catch(error => {
+        console.error('Error sending friend request:', error);
+        alert('Error sending friend request. Check console for details.');
+    });
+}
+</script>
+{% endblock %}

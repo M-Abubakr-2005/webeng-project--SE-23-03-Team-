@@ -1,0 +1,67 @@
+===============================================
+MILA CHAT - SIMPLE STARTUP COMMANDS
+===============================================
+
+🚀 OPTION 1 - EASIEST (Double Click)
+=====================================
+1. Go to: C:\Users\awais\OneDrive\Desktop\chat web
+2. Double-click on: START.bat
+3. Wait for message: "Starting development server..."
+4. Open browser: http://localhost:8000
+
+
+🚀 OPTION 2 - COMMAND LINE
+===========================
+1. Open Command Prompt
+2. Type: cd C:\Users\awais\OneDrive\Desktop\chat web
+3. Type: python manage.py runserver
+4. Open browser: http://localhost:8000
+
+
+🚀 OPTION 3 - DIFFERENT PORT
+============================
+If port 8000 is busy, use:
+python manage.py runserver 8001
+
+Then open: http://localhost:8001
+
+
+📝 TEST ACCOUNTS
+================
+Email: alice@mila.com
+Password: Test@1234
+
+OR
+
+Email: bob@mila.com
+Password: Test@1234
+
+
+✅ FEATURES READY
+=================
+✓ Real-time Chat (WebSocket)
+✓ Friend Requests System
+✓ User Profiles
+✓ Dark/Light Theme
+✓ Animations
+✓ Online Status
+✓ Message History
+✓ Admin Panel
+
+
+⏹️ STOP SERVER
+==============
+Press: CTRL + C
+
+
+📞 NEED HELP?
+=============
+- Check README.md for full documentation
+- Check Django logs in terminal
+- Clear browser cache if issues
+- Restart server if WebSocket fails
+
+
+🎉 THAT'S IT!
+=============
+Your app is ready to use!

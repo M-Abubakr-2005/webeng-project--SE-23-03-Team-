@@ -1,0 +1,36 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Start New Chat - Mila{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: var(--spacing-xl) 0; max-width: 600px; margin: 0 auto;">
+    <a href="{% url 'chat:dashboard' %}" class="btn btn-secondary" style="margin-bottom: var(--spacing-lg);">← Back</a>
+
+    <div class="card">
+        <h2>Start a New Conversation</h2>
+        <p style="color: var(--text-secondary);">Select a friend to start messaging</p>
+
+        {% if friends %}
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md);">
+                {% for friend in friends %}
+                <form method="POST" style="margin: 0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="recipient_id" value="{{ friend.id }}">
+                    <button type="submit" class="card" style="width: 100%; border: none; cursor: pointer; display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-md); background: var(--bg-elevated); transition: all var(--transition-fast); text-align: left;">
+                        <img src="{{ friend.profile.avatar.url }}" alt="{{ friend.username }}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                        <div>
+                            <strong>{{ friend.get_full_name|default:friend.username }}</strong>
+                            <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-online);">● Online</p>
+                        </div>
+                    </button>
+                </form>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="text-align: center; color: var(--text-secondary);">No online friends available</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
