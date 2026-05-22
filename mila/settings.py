@@ -25,10 +25,13 @@ SECRET_KEY = 'django-insecure-#pfl0ptdr1t2aa7%-das+y#m92u(v3+7n*j*_g64nrs_96l^82
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+# mila/settings.py
+
 ALLOWED_HOSTS = [
-    "webeng-project-se-23-03-team.vercel.app",
-    "localhost",
-    "127.0.0.1"
+    'webeng-project-se-23-03-team.vercel.app',
+    '.vercel.app',  # Optional: Wildcard allows any Vercel preview deployments to work too
+    'localhost',
+    '127.0.0.1',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
